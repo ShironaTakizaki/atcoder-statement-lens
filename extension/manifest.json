@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "AtCoder Statement Lens",
+  "version": "0.1.0",
+  "description": "Highlight matching variables in AtCoder task statements.",
+  "content_scripts": [
+    {
+      "matches": ["https://atcoder.jp/contests/*/tasks/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}

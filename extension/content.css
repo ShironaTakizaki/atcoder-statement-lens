@@ -1,0 +1,37 @@
+.asl-token {
+  border-radius: 3px;
+  cursor: default;
+  transition: background-color 120ms ease, box-shadow 120ms ease;
+}
+
+.asl-formula {
+  border-radius: 4px;
+  cursor: default;
+  transition: background-color 120ms ease, box-shadow 120ms ease;
+}
+
+.asl-token.asl-match {
+  background: rgba(255, 214, 102, 0.42);
+  box-shadow: 0 0 0 1px rgba(201, 140, 0, 0.18);
+}
+
+.asl-token.asl-active {
+  background: rgba(255, 181, 71, 0.72);
+  box-shadow: 0 0 0 1px rgba(173, 102, 0, 0.36);
+}
+
+.katex.asl-formula-match,
+var.asl-formula-match {
+  border-radius: 4px;
+  background: rgba(255, 214, 102, 0.28);
+  box-shadow: 0 0 0 2px rgba(255, 214, 102, 0.28);
+}
+
+.katex.asl-formula-active {
+  background: rgba(255, 181, 71, 0.42);
+  box-shadow: 0 0 0 2px rgba(173, 102, 0, 0.28);
+}
+
+.asl-token.asl-pinned {
+  outline: 1px solid rgba(120, 82, 0, 0.45);
+}
