@@ -2,8 +2,8 @@
   "use strict";
 
   const STATEMENT_SELECTOR = "#task-statement";
-  const TEXT_TOKEN_PATTERN = /[A-Za-z]_[A-Za-z0-9]+|[A-Z]|(?<![A-Za-z\\])[ijk](?![A-Za-z])/g;
-  const MATH_TOKEN_PATTERN = /[A-Za-z]_[A-Za-z0-9]+|[A-Z]|(?<![A-Za-z\\])[ijk](?![A-Za-z])/g;
+  const TEXT_TOKEN_PATTERN = /[A-Za-z]_[A-Za-z0-9]+|(?<![A-Za-z\\])[A-Z](?![A-Za-z])|(?<![A-Za-z\\])[ijk](?![A-Za-z])/g;
+  const MATH_TOKEN_PATTERN = /[A-Za-z]_[A-Za-z0-9]+|(?<![A-Za-z\\])[A-Z](?![A-Za-z])|(?<![A-Za-z\\])[ijk](?![A-Za-z])/g;
   const INDEX_TOKEN_PATTERN = /^[ijk]$/;
   const INDEXED_TOKEN_PATTERN = /^([A-Za-z])_([A-Za-z0-9]+)$/;
   const SKIP_TAGS = new Set(["SCRIPT", "STYLE", "TEXTAREA", "INPUT", "BUTTON"]);
