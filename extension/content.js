@@ -8,10 +8,13 @@
   const INDEXED_TOKEN_PATTERN = /^([A-Za-z])_([A-Za-z0-9]+)$/;
   const SKIP_TAGS = new Set(["SCRIPT", "STYLE", "TEXTAREA", "INPUT", "BUTTON"]);
   const SAMPLE_HEADING_PATTERN = /^(入力例|出力例|Sample Input|Sample Output)(?:\s|$)/i;
+  const RESCAN_DELAY_MS = 120;
 
   const state = {
     pinnedTokens: null,
-    hoverTokens: null
+    hoverTokens: null,
+    rescanTimer: null,
+    scanning: false
   };
 
   const statement = document.querySelector(STATEMENT_SELECTOR);
@@ -22,12 +25,58 @@
   initialize();
 
   function initialize() {
-    wrapTextTokens(statement);
-    markKatexFormulas(statement);
+    scanStatement();
     statement.addEventListener("mouseover", handleMouseOver);
     statement.addEventListener("mouseout", handleMouseOut);
     statement.addEventListener("click", handleClick);
     document.addEventListener("keydown", handleKeyDown);
+    observeStatementChanges();
+  }
+
+  function scanStatement() {
+    if (state.scanning) {
+      return;
+    }
+
+    state.scanning = true;
+    wrapTextTokens(statement);
+    markKatexFormulas(statement);
+    state.scanning = false;
+  }
+
+  function observeStatementChanges() {
+    const observer = new MutationObserver((mutations) => {
+      if (state.scanning || !mutations.some(shouldRescanForMutation)) {
+        return;
+      }
+
+      window.clearTimeout(state.rescanTimer);
+      state.rescanTimer = window.setTimeout(scanStatement, RESCAN_DELAY_MS);
+    });
+
+    observer.observe(statement, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+      attributeFilter: ["class", "style"]
+    });
+  }
+
+  function shouldRescanForMutation(mutation) {
+    if (mutation.type === "childList" || mutation.type === "characterData") {
+      return true;
+    }
+
+    if (mutation.type !== "attributes" || !(mutation.target instanceof Element)) {
+      return false;
+    }
+
+    return isLanguageContainer(mutation.target);
+  }
+
+  function isLanguageContainer(element) {
+    return Array.from(element.classList).some((className) => className.startsWith("lang-"));
   }
 
   function wrapTextTokens(root) {
@@ -46,7 +95,7 @@
           !parent ||
           shouldSkipElement(parent) ||
           isHiddenInsideStatement(parent) ||
-          isInSampleSection(parent)
+          isInSampleDataBlock(parent)
         ) {
           return NodeFilter.FILTER_REJECT;
         }
@@ -70,6 +119,10 @@
   }
 
   function replaceTextNode(node, pattern) {
+    if (!node.parentNode) {
+      return;
+    }
+
     const text = node.nodeValue;
     const fragment = document.createDocumentFragment();
     let lastIndex = 0;
@@ -106,7 +159,7 @@
 
     for (const annotation of annotations) {
       const formula = annotation.closest(".katex");
-      if (!formula || isHiddenInsideStatement(formula) || isInSampleSection(formula)) {
+      if (!formula || isHiddenInsideStatement(formula) || isInSampleDataBlock(formula)) {
         continue;
       }
 
@@ -115,8 +168,12 @@
         continue;
       }
 
-      formula.classList.add("asl-formula");
-      formula.dataset.aslTokens = tokens.join(" ");
+      setFormulaTokens(formula, tokens);
+
+      const variableWrapper = formula.closest("var");
+      if (variableWrapper && statement.contains(variableWrapper)) {
+        setFormulaTokens(variableWrapper, tokens);
+      }
     }
   }
 
@@ -234,6 +291,11 @@
 
   function getFormulaTokens(formula) {
     return (formula.dataset.aslTokens || "").split(" ").filter(Boolean);
+  }
+
+  function setFormulaTokens(element, tokens) {
+    element.classList.add("asl-formula");
+    element.dataset.aslTokens = tokens.join(" ");
   }
 
   function expandTokenSelection(token) {
@@ -366,13 +428,17 @@
     return false;
   }
 
-  function isInSampleSection(element) {
+  function isInSampleDataBlock(element) {
     const part = element.closest(".part");
     if (!part) {
       return false;
     }
 
     const heading = part.querySelector("h3");
-    return Boolean(heading && SAMPLE_HEADING_PATTERN.test(heading.textContent.trim()));
+    if (!heading || !SAMPLE_HEADING_PATTERN.test(heading.textContent.trim())) {
+      return false;
+    }
+
+    return Boolean(element.closest("pre, code, samp"));
   }
 })();

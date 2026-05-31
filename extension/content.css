@@ -27,7 +27,8 @@ var.asl-formula-match {
   box-shadow: 0 0 0 2px rgba(255, 214, 102, 0.28);
 }
 
-.katex.asl-formula-active {
+.katex.asl-formula-active,
+var.asl-formula-active {
   background: rgba(255, 181, 71, 0.42);
   box-shadow: 0 0 0 2px rgba(173, 102, 0, 0.28);
 }
