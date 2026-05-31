@@ -5,6 +5,7 @@
   const TEXT_TOKEN_PATTERN = /[A-Za-z]_[A-Za-z0-9]+|[A-Z]|(?<![A-Za-z\\])[ijk](?![A-Za-z])/g;
   const MATH_TOKEN_PATTERN = /[A-Za-z]_[A-Za-z0-9]+|[A-Z]|(?<![A-Za-z\\])[ijk](?![A-Za-z])/g;
   const INDEX_TOKEN_PATTERN = /^[ijk]$/;
+  const INDEXED_TOKEN_PATTERN = /^([A-Za-z])_([A-Za-z0-9]+)$/;
   const SKIP_TAGS = new Set(["SCRIPT", "STYLE", "TEXTAREA", "INPUT", "BUTTON"]);
   const SAMPLE_HEADING_PATTERN = /^(入力例|出力例|Sample Input|Sample Output)(?:\s|$)/i;
 
@@ -236,6 +237,14 @@
   }
 
   function expandTokenSelection(token) {
+    if (INDEXED_TOKEN_PATTERN.test(token)) {
+      return expandIndexedToken(token);
+    }
+
+    if (isKnownIndexedBase(token)) {
+      return expandBaseToken(token);
+    }
+
     if (!INDEX_TOKEN_PATTERN.test(token)) {
       return [token];
     }
@@ -257,6 +266,62 @@
     }
 
     return Array.from(tokens);
+  }
+
+  function expandIndexedToken(token) {
+    const match = token.match(INDEXED_TOKEN_PATTERN);
+    if (!match) {
+      return [token];
+    }
+
+    return collectIndexedFamily(match[1]);
+  }
+
+  function expandBaseToken(token) {
+    return collectIndexedFamily(token);
+  }
+
+  function collectIndexedFamily(base) {
+    const tokens = new Set([base]);
+    for (const candidate of collectKnownTokens()) {
+      if (candidate === base || candidate.startsWith(`${base}_`)) {
+        tokens.add(candidate);
+      }
+    }
+
+    return Array.from(tokens);
+  }
+
+  function isKnownIndexedBase(token) {
+    if (!/^[A-Za-z]$/.test(token)) {
+      return false;
+    }
+
+    for (const candidate of collectKnownTokens()) {
+      if (candidate.startsWith(`${token}_`)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  function collectKnownTokens() {
+    const tokens = new Set();
+    for (const element of statement.querySelectorAll(".asl-token")) {
+      const token = element.dataset.aslToken;
+      if (token) {
+        tokens.add(token);
+      }
+    }
+
+    for (const formula of statement.querySelectorAll(".asl-formula")) {
+      for (const token of getFormulaTokens(formula)) {
+        tokens.add(token);
+      }
+    }
+
+    return tokens;
   }
 
   function expandTokenSet(tokens) {
