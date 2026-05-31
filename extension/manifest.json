@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "AtCoder Statement Lens",
   "version": "0.1.0",
-  "description": "Highlight matching variables in AtCoder task statements.",
+  "description": "AtCoder の問題文に出てくる変数をマウスオーバーでハイライトします。",
   "icons": {
     "16": "icons/icon_16.png",
     "32": "icons/icon_32.png",
