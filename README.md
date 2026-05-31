@@ -6,6 +6,8 @@ Chrome 拡張機能です。
 問題文そのものは書き換えず、変数や数式にマウスオーバーしたときだけ、対応しそうな
 記号を軽くハイライトします。
 
+本拡張機能は非公式であり、AtCoder との提携・承認を示すものではありません。
+
 ## スクリーンショット
 
 <img src="assets/screenshot-hover.png" alt="AtCoder Statement Lens による変数ハイライト例" width="900">
@@ -76,6 +78,7 @@ docs/
 - AI による説明生成は行いません。
 - AtCoder 問題の解法、方針、実装案は提示しません。
 - 自動提出やスコア最適化の機能はありません。
+- AtCoder 公式の拡張機能ではありません。
 
 KaTeX でレンダリングされた数式については、
 `annotation[encoding="application/x-tex"]` を使って変数を検出します。
